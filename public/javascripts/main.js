@@ -43,14 +43,14 @@ function sound(src) {
 
 //chrome'un autoloop engelleme özelliğini kaldırmak için sessiz bir iframe yaratıp ekliyoruz
 let iframeYarat = document.createElement('iframe'); iframeYarat.id ='iframeYarat';
-iframeYarat.src = '/public/images/statik/sesler/müzikler/silence.mp3'; 
+iframeYarat.src = '/images/statik/sesler/müzikler/silence.mp3'; 
 iframeYarat.allow = 'autoplay';
 iframeYarat.style.display = 'none';
 document.body.appendChild(iframeYarat);
 let iframeSessiz = document.getElementById('iframeYarat')
 
 //oyun intro müzik loopu
-let koyLoop = new sound('/public/images/statik/sesler/müzikler/looperman-l-0623169-0240428-drop-splash-rod-wave-tjay-part1-nofuk.wav');
+let koyLoop = new sound('/images/statik/sesler/müzikler/looperman-l-0623169-0240428-drop-splash-rod-wave-tjay-part1-nofuk.wav');
 koyLoop.play();
 koyLoop.volume(0.03);
 koyLoop.loop = 'loop';
@@ -128,7 +128,7 @@ let temporary;
 //resim oluşturma fonksiyonu
 kanvasaResimEkle();
 function kanvasaResimEkle(){
-    kanvasResim.src = '/public/images/statik/resimler/harita.png';
+    kanvasResim.src = '/images/statik/resimler/harita.png';
     kanvasResim.onload = function () {
         resim.drawImage(kanvasResim, 0, 0, kanvas.width, kanvas.height);
     };

@@ -9,7 +9,11 @@ let l;
 
 //INTRO VE MENU
 //CSS STYLE'lar
-//DOM elementini merkezleme
+//Rakamın başına 0 ekleme (saat için)
+Number.prototype.zeroPad = function() {
+    return ('0'+this).slice(-2);
+ };
+//DOM elementini merkezleme (menü butonları için)
 HTMLElement.prototype.centre = function(){
     var w = document.documentElement.clientWidth,
         h = document.documentElement.clientHeight;
@@ -21,7 +25,7 @@ HTMLElement.prototype.centre = function(){
 //tüm belgenin arka fonunu siyah yapma
 document.body.style.backgroundColor = "black";
 
-//ses oluşturma sınıfı
+//ses oluşturma sınıfı (arka fon müziği için)
 function sound(src) {
     this.sound = document.createElement("audio");
     this.sound.src = src;
@@ -68,28 +72,35 @@ let butonYarat = document.createElement('button'); butonYarat.id = 'menuButon';
 //merkezleme
 butonYarat.centre();
 
+//Menü butonlarına buton ekleme
 introDiv.appendChild(butonYarat);
 let menuButon = document.getElementById('menuButon');
 menuButon.innerText = 'BAŞLA';
 menuButon.addEventListener('click', function(){
+    //Oyunu başlatma
     anaOyun();
+    //butonu silme
     menuButon.remove();
 })
 
 //INTRO BİTİMİ
 
+
 //ANA OYUN
 function anaOyun(){
+
+//intro müziğini durdurma
 koyLoop.stop();
+
 //saati saracak saatDiv elementi
 let saatYarat = document.createElement('div'); saatYarat.id='saatDiv';
 document.body.appendChild(saatYarat); 
 let saatDiv = document.getElementById('saatDiv');
 
 //saat elementi
-let saatAkrepYarat = document.createElement('p'); saatAkrepYarat.id='saatAkrep'; 
-saatDiv.appendChild(saatAkrepYarat); 
-let saatAkrep = document.getElementById('saatAkrep');
+let akrepYelkovanYarat = document.createElement('p'); akrepYelkovanYarat.id='akrepYelkovan'; 
+saatDiv.appendChild(akrepYelkovanYarat); 
+let akrepYelkovan = document.getElementById('akrepYelkovan');
 
 //kanvas ve içine resim
 let kanvasYarat = document.createElement("canvas"); kanvasYarat.id="kanvas";  
@@ -110,7 +121,7 @@ kanvas.style.height = 'auto';
 kanvas.style.width = '76%';
 
 //saat elementinin css style'ı
-saatAkrep.style.color = 'white';
+saatDiv.style.color = 'white';
 
 //metinAkisDiv elementinin fontlarını beyaz yapar
 metinAkisDiv.style.color = 'white'
@@ -135,27 +146,32 @@ function kanvasaResimEkle(){
 };
 
 
-
-
 //oyun saatini belirleyen akrepYelkovan nesnesi
-let akrepYelkovan = {
-    sifir : "0",
+let Saat = {
     saat : 0,
     dakika: 0,
 
     //hamledeSaatGeçir metodu ile her hamlede saat 10 dakika geçer
     hamledeSaatGeçir(){
-        this.dakika += 1
+        
+        this.dakika += 1;
+        
         if(this.dakika === 6){
             this.saat +=1;
             this.dakika = 0;
-        }
+        };
+
         if(this.saat === 24){
-            this.saat = 0
-        }
-        return this.saat + ':' + this.dakika + '0'
+            this.saat = 0;
+        };
+        //saat 10'dan küçükse saat hanesinin başına 0 ekleme, öyle return etme
+        if(this.saat.toString().length < 2){
+            return this.saat.zeroPad()+ ":" + this.dakika + "0";
+        };
+
+        return this.saat + ":" + this.dakika + "0";
     }
-}
+};
 
 
 //array kıyaslama
@@ -171,7 +187,8 @@ function hareketW(){
     temporary =[...oyuncuKonumu];
     temporary[0]++;
     if(haritadanKıyas(temporary, oyunHarita)){
-        oyuncuKonumu = [...temporary]
+        oyuncuKonumu = [...temporary];
+        process();
     }
 }
 //klavyede 's' tuşuna basılınca
@@ -179,21 +196,30 @@ function hareketS(){
     temporary =[...oyuncuKonumu];
     temporary[0]--;
     if(haritadanKıyas(temporary, oyunHarita)){
-        oyuncuKonumu = [...temporary]}
+        oyuncuKonumu = [...temporary];
+        process();
+    };
+        
 } 
 //klavyede 'a' tuşuna basılınca
 function hareketA(){
     temporary =[...oyuncuKonumu];
     temporary[1]--;
     if(haritadanKıyas(temporary, oyunHarita)){
-        oyuncuKonumu = [...temporary]}
+        oyuncuKonumu = [...temporary];
+        process();
+    };
+        
 }
 //klavyede 'd' tuşuna basılınca
 function hareketD(){
     temporary =[...oyuncuKonumu];
     temporary[1]++;
     if(haritadanKıyas(temporary, oyunHarita)){
-        oyuncuKonumu = [...temporary]}
+        oyuncuKonumu = [...temporary];
+        process();
+    };
+        
 }   
 
 //Tüm fonksiyonları toplayan hareket fonksiyonu
@@ -210,7 +236,7 @@ function hareket(event){
     else if (event.key === 'd') {
         hareketD()
     } 
-    oku();   
+      
 }
 
 //haritadan paralel-meridyen kıyaslar
@@ -234,13 +260,24 @@ function konumOkuma (arrayArgument, arrayOfArrays){
     }
 
 //koordinatlardaki tanımı metinAkisDiv elementine yazdırır
-function oku() {
+function process() {
+    //setttimeout ile yarım saniye bekletme
+    setTimeout(function() {
+        metinAkisDiv.innerText = (konumOkuma(oyuncuKonumu, oyunHarita));}, 500);
+
+    akrepYelkovan.innerText = '';
+    akrepYelkovan.innerText = Saat.hamledeSaatGeçir()
     metinAkisDiv.innerText = '';
-    metinAkisDiv.innerText = (konumOkuma(oyuncuKonumu, oyunHarita))
 };
 
 
 
-document.addEventListener('keydown', hareket)
-oku();
+document.addEventListener('keydown', function(event) {
+    hareket(event);
+    }
+)
+
+//ilk el konum ve saat
+metinAkisDiv.innerText = konumOkuma(oyuncuKonumu, oyunHarita);
+akrepYelkovan.innerText = Saat.saat.zeroPad()+ ":" + Saat.dakika + "0";
 }
